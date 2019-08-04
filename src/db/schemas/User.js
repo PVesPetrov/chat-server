@@ -1,8 +1,8 @@
 import { model, Schema } from 'mongoose';
-import { isLength, isEmail } from 'validator';
+import { isEmpty, isEmail } from 'validator';
 
 const User = new Schema({
-  firstname: {
+  firstName: {
     type: String,
     required: [true, 'First name is required'],
     validate: {
@@ -10,7 +10,7 @@ const User = new Schema({
       message: ({ value }) => `${value} is not a valid first name.`
     }
   },
-  lastname: {
+  lastName: {
     type: String,
     required: [true, 'Last name is required'],
     validate: {
@@ -26,7 +26,7 @@ const User = new Schema({
       message: ({ value }) => `${value} is not a valid email.`
     }
   },
-  nickname: {
+  nickName: {
     type: String,
     required: [true, 'Nickname is required'],
     validate: {
@@ -38,9 +38,13 @@ const User = new Schema({
     type: String,
     required: [true, 'Password is required'],
     validate: {
-      validator: v => isLength(v, { min: 6, max: 14 }),
+      validator: v => !isEmpty(v),
       message: ({ value }) => `${value} is not a valid password.`
     }
+  },
+  verified: {
+    type: Boolean,
+    default: false
   }
 });
 

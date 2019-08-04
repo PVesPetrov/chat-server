@@ -1,19 +1,28 @@
 import express from 'express';
-import router from './router';
 import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import config from '../config';
+import router from './router';
+
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
 const app = express();
-const port = 3300;
+
+app.use(cors());
+
+app.use(bodyParser.json());
 
 app.use('/', router);
 
-app.get('/ping', (req, res) => res.send('Pong'));
+app.listen(config.ports.api, () =>
+  console.log(`API listening to port ${config.ports.api}`)
+);
 
-app.listen(4400, () => console.log('App listening to port 4400'));
-
-server.listen(port, () => console.log(`Listening to port ${port}`));
+server.listen(config.ports.socket, () =>
+  console.log(`Socket listening to port ${config.ports.socket}`)
+);
 
 io.on('connection', function(socket) {
   socket.emit('news', { hello: 'world' });
