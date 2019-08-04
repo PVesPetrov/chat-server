@@ -6,21 +6,15 @@ import transporter from '../../middleware/nodemailer';
 import config from '../../../config';
 
 export default (req, res, next) => {
-  console.log({ body: req.body });
-  // const user = new User(req.body);
-  // const errors = user.validateSync();
-  // console.log(user);
-  // if (errors) {
-  //   return res.status(400).send(errors);
-  // }
-
+  console.log({ reqbody: req.body });
   User.findOne({ email: req.body.email })
     .then(data => {
       // Make sure user doesn't already exist
       if (data)
         return res.status(400).send({
-          msg:
+          error: [
             'The email address you have entered is already associated with another account.'
+          ]
         });
 
       // Hash the password
@@ -28,7 +22,7 @@ export default (req, res, next) => {
         if (err) {
           return res
             .status(500)
-            .send({ Error: 'Internal Error.Please, try again.' });
+            .send({ error: ['Internal Error. Please, try again.'] });
         } else {
           console.log('before saving the user', req.body);
           req.body.password = hash;
@@ -42,7 +36,7 @@ export default (req, res, next) => {
               // Save the verification token
               token.save(function(err) {
                 if (err) {
-                  return res.status(500).send({ msg: err.message });
+                  return res.status(500).send({ error: [err.message] });
                 }
 
                 // Send the email
@@ -63,15 +57,18 @@ export default (req, res, next) => {
                 };
                 transporter.sendMail(mailOptions, function(err) {
                   if (err) {
-                    return res.status(500).send({ msg: err.message });
+                    return res.status(500).send({ error: [err.message] });
                   }
-                  res
-                    .status(200)
-                    .send(
-                      'A verification email has been sent to ' +
-                        newUser.email +
-                        '.'
-                    );
+                  res.status(200).send({
+                    data: [
+                      {
+                        firstName: newUser.firstName,
+                        lastName: newUser.lastName,
+                        nickName: newUser.nickName,
+                        email: newUser.lastName
+                      }
+                    ]
+                  });
                 });
               });
             })

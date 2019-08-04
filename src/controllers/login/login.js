@@ -20,14 +20,16 @@ export default (req, res, next) => {
       if (!user) {
         return res
           .status(404)
-          .send({ msg: 'User with such email was not found.' });
+          .send({ error: ['User with such email was not found.'] });
       }
       if (!user.verified) {
         return res.status(400).send({
-          msg:
+          error: [
             'The account has not been verified. Please check your email for verification instructions.'
+          ]
         });
       }
+      console.log({ password, userPassword: user.password });
       bcrypt.compare(password, user.password).then(result => {
         if (result) {
           const token = jwt.sign(
@@ -38,15 +40,23 @@ export default (req, res, next) => {
             }
           );
           res.send({
-            firstname: user.firstname,
-            lastname: user.lastname,
-            token,
-            email
+            data: [
+              {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                nickName: user.nickName,
+                token,
+                email
+              }
+            ]
           });
         } else {
-          res.status(400).send({ msg: 'Incorrect password' });
+          res.status(400).send({ error: ['Incorrect password'] });
         }
       });
     })
-    .catch(err => next(err));
+    .catch(err => {
+      console.log(err);
+      next(err);
+    });
 };
